@@ -1,0 +1,46 @@
+- hosts: all
+  tasks:
+  - name: "Creating Directory to mount DVD"
+    file:
+       state: directory
+       path: "/dvd1"
+  - name: "Mount the DVD"
+    mount:
+       src: "/dev/cdrom"
+       path: "/dvd1"
+       state: mounted
+       fstype: iso9660
+  - name: "Configure Yum Repository"
+    yum_repository:
+       baseurl: "/dvd1/AppStream"
+       name: "mydvd1"
+       gpgcheck: no
+       description: "mydvd1 yum local repository"
+  - name: "Configure yum Repository"
+    yum_repository:
+       baseurl: "/dvd1/BaseOS"
+       name: "mydvd2"
+       gpgcheck: no
+       description: "mydvd2 yum local repository"
+  - name: "Installing apache web service"
+    package:
+       name: "httpd"
+       state: present
+  - name: "Copy the image"
+    copy:
+       src: "m.png"
+       dest: "/var/www/html/"
+  - name: "Copy the html content"
+    copy:
+       src: "web.html"
+       dest: "/var/www/html/index.html"
+  - name: "Starting the web service"
+    service:
+       name: "httpd"
+       state: started
+  - name: "Enable the port number"
+    firewalld:
+       port: 80/tcp
+       state: enabled
+       immediate: no
+
